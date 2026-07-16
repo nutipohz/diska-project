@@ -25,15 +25,11 @@ jobs:
             rm project.zip
           fi
 
-      - name: Automatic Godot Setup
-        uses: ammar-ahm-ed/godot-setup@v1
+      - name: Setup Godot Engine 4
+        uses: chickensoft-games/setup-godot@v2
         with:
-          version: '4.4-st'
-
-      - name: Download Manual Templates
-        run: |
-          mkdir -p ~/.local/share/godot/export_templates/4.4.stable
-          echo "Preparing compilation workspace"
+          version: 4.3.0
+          include-templates: true
 
       - name: Native Godot Export
         run: |
@@ -45,4 +41,5 @@ jobs:
         with:
           name: my-game-apk
           path: build/game.apk
+
 
