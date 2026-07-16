@@ -1,4 +1,4 @@
-name: "Godot Android Debug Build"
+name: "Godot Android Build ARM32"
 on: [push, pull_request]
 
 jobs:
@@ -29,15 +29,21 @@ jobs:
             fi
             rm -rf temp_unzip project.zip
           fi
+          # Делаем файл проекта чистым, чтобы Godot 4.3.0 импортировал его без ошибок
+          if [ -f project.godot ]; then
+            sed -i '/config_version=/d' project.godot
+            sed -i '/config\/features=/d' project.godot
+            echo 'config_version=5' >> project.godot
+          fi
 
-      - name: Setup Standard Godot Engine 4.7.1
+      - name: Setup Godot Engine 4.3
         uses: chickensoft-games/setup-godot@v2
         with:
-          version: 4.7.1
+          version: 4.3.0
           use-mono: false
           include-templates: true
 
-      - name: Force Debug Architecture Config
+      - name: Force Android Architecture Config
         run: |
           mkdir -p build
           cat << 'EOF' > export_presets.cfg
@@ -67,7 +73,15 @@ jobs:
           rendering/textures/vram_compression/import_etc2_astc=true
           EOF
 
-      - name: Native Godot Debug Export
+      - name: First Run - Import Assets
+        run: |
+          # Запускаем редактор в фоне на 20 секунд, чтобы он сгенерировал папки импорта для текстур
+          godot --headless --path . --editor &
+          PID=$!
+          sleep 20
+          kill $PID || true
+
+      - name: Native Godot Export
         run: |
           godot --headless --path . --export-debug "Android" build/game.apk
 
@@ -76,6 +90,7 @@ jobs:
         with:
           name: my-game-apk
           path: build/game.apk
+
 
 
 
