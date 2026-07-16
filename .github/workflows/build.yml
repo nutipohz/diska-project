@@ -1,4 +1,4 @@
-name: "Godot Android Build ARM32"
+name: "Godot Android Build ARM32 Fixed"
 on: [push, pull_request]
 
 jobs:
@@ -18,7 +18,7 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Unzip and Downgrade Project
+      - name: Unzip and Flatten Project Source
         run: |
           if [ -f project.zip ]; then
             unzip project.zip -d temp_unzip
@@ -42,16 +42,12 @@ jobs:
           use-mono: false
           include-templates: true
 
-      - name: First Run - Import Assets
+      - name: Hard Template Patch and Forced Build
         run: |
-          godot --headless --path . --editor &
-          PID=$!
-          sleep 20
-          kill $PID || true
-
-      - name: Force Overwrite Architecture Config
-        run: |
+          # Создаем чистые папки под билд
           mkdir -p build
+          
+          # Генерируем конфигурационный файл, который гарантированно заставит Gradle собрать обе архитектуры
           cat << 'EOF' > export_presets.cfg
           [preset.0]
           name="Android"
@@ -77,10 +73,12 @@ jobs:
           package/name="My Game"
           package/signed=false
           rendering/textures/vram_compression/import_etc2_astc=true
+          custom_template/debug=""
+          custom_template/release=""
           EOF
 
-      - name: Native Godot Export
-        run: |
+          # Прямой вызов компилятора через бездиалоговый экспорт, принудительно сканирующий папки проекта
+          godot --headless --path . --editor --quit || true
           godot --headless --path . --export-debug "Android" build/game.apk
 
       - name: Upload APK
