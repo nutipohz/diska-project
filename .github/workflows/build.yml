@@ -25,10 +25,10 @@ jobs:
             rm project.zip
           fi
 
-      - name: Setup Godot Engine 4
+      - name: Setup Godot Engine 4.7.1
         uses: chickensoft-games/setup-godot@v2
         with:
-          version: 4.3.0
+          version: 4.7.1
           include-templates: true
 
       - name: Native Godot Export
@@ -41,5 +41,6 @@ jobs:
         with:
           name: my-game-apk
           path: build/game.apk
+
 
 
