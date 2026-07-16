@@ -22,7 +22,6 @@ jobs:
         run: |
           if [ -f project.zip ]; then
             unzip project.zip -d temp_unzip
-            # Если файлы распаковались в подпапку, вытаскиваем их в корень
             if [ $(ls -1 temp_unzip | wc -l) -eq 1 ] && [ -d temp_unzip/* ]; then
               mv temp_unzip/*/* .
             else
@@ -31,15 +30,45 @@ jobs:
             rm -rf temp_unzip project.zip
           fi
 
-      - name: Setup Godot Engine 4.7.1
+      - name: Setup Standard Godot Engine 4.7.1
         uses: chickensoft-games/setup-godot@v2
         with:
           version: 4.7.1
+          use-mono: false
           include-templates: true
+
+      - name: Force Android Architecture Config
+        run: |
+          mkdir -p build
+          cat << 'EOF' > export_presets.cfg
+          [preset.0]
+          name="Android"
+          platform="Android"
+          runnable=true
+          dedicated_server=false
+          custom_features=""
+          export_filter="all_resources"
+          include_filter=""
+          exclude_filter=""
+          export_path="build/game.apk"
+          encryption_include_filters=""
+          encryption_exclude_filters=""
+          encrypt_pck=false
+          encrypt_directory=false
+
+          [preset.0.options]
+          architecture/armeabi-v7a=true
+          architecture/arm64-v8a=true
+          architecture/x86=false
+          architecture/x86_64=false
+          package/unique_name="com.example.mygame"
+          package/name="My Game"
+          package/signed=false
+          rendering/textures/vram_compression/import_etc2_astc=true
+          EOF
 
       - name: Native Godot Export
         run: |
-          mkdir -p build
           godot --headless --path . --export-release "Android" build/game.apk
 
       - name: Upload APK
@@ -47,6 +76,7 @@ jobs:
         with:
           name: my-game-apk
           path: build/game.apk
+
 
 
 
