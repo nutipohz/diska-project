@@ -1,4 +1,4 @@
-name: "Godot Android Build ARM32 Fixed"
+name: "Godot Android Build ARM32 Clean"
 on: [push, pull_request]
 
 jobs:
@@ -35,19 +35,18 @@ jobs:
             echo 'config_version=5' >> project.godot
           fi
 
-      - name: Setup Godot Engine 4.3
+      - name: Setup Standard Godot Engine 4.3 (No Cache)
         uses: chickensoft-games/setup-godot@v2
         with:
           version: 4.3.0
           use-mono: false
           include-templates: true
+          # Этот параметр принудительно обнуляет старый Mono-кэш:
+          cache-key: "godot-standard-pure-gdscript-v1"
 
       - name: Hard Template Patch and Forced Build
         run: |
-          # Создаем чистые папки под билд
           mkdir -p build
-          
-          # Генерируем конфигурационный файл, который гарантированно заставит Gradle собрать обе архитектуры
           cat << 'EOF' > export_presets.cfg
           [preset.0]
           name="Android"
@@ -77,7 +76,6 @@ jobs:
           custom_template/release=""
           EOF
 
-          # Прямой вызов компилятора через бездиалоговый экспорт, принудительно сканирующий папки проекта
           godot --headless --path . --editor --quit || true
           godot --headless --path . --export-debug "Android" build/game.apk
 
