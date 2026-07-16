@@ -1,4 +1,4 @@
-name: "Godot Android Build"
+name: "Godot Android Debug Build"
 on: [push, pull_request]
 
 jobs:
@@ -37,7 +37,7 @@ jobs:
           use-mono: false
           include-templates: true
 
-      - name: Force Android Architecture Config
+      - name: Force Debug Architecture Config
         run: |
           mkdir -p build
           cat << 'EOF' > export_presets.cfg
@@ -67,15 +67,16 @@ jobs:
           rendering/textures/vram_compression/import_etc2_astc=true
           EOF
 
-      - name: Native Godot Export
+      - name: Native Godot Debug Export
         run: |
-          godot --headless --path . --export-release "Android" build/game.apk
+          godot --headless --path . --export-debug "Android" build/game.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: my-game-apk
           path: build/game.apk
+
 
 
 
