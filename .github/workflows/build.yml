@@ -18,11 +18,17 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Unzip Project Source
+      - name: Unzip and Flatten Project Source
         run: |
           if [ -f project.zip ]; then
-            unzip project.zip -d .
-            rm project.zip
+            unzip project.zip -d temp_unzip
+            # Если файлы распаковались в подпапку, вытаскиваем их в корень
+            if [ $(ls -1 temp_unzip | wc -l) -eq 1 ] && [ -d temp_unzip/* ]; then
+              mv temp_unzip/*/* .
+            else
+              mv temp_unzip/* .
+            fi
+            rm -rf temp_unzip project.zip
           fi
 
       - name: Setup Godot Engine 4.7.1
@@ -34,13 +40,14 @@ jobs:
       - name: Native Godot Export
         run: |
           mkdir -p build
-          godot --headless --export-release "Android" build/game.apk
+          godot --headless --path . --export-release "Android" build/game.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: my-game-apk
           path: build/game.apk
+
 
 
 
