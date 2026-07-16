@@ -16,9 +16,17 @@ jobs:
             rm project.zip
           fi
 
+      - name: Setup Godot 4.7.1 Headless
+        run: |
+          wget -q https://downloads.tuxfamily.org/godotengine/4.7.1/Godot_v4.7.1-stable_linux_headless.64.zip
+          unzip Godot_v4.7.1-stable_linux_headless.64.zip
+          mv Godot_v4.7.1-stable_linux_headless.64/usr/local/bin/godot
+          rm Godot_v4.7.1-stable_linux_headless.64.zip
+
       - name: Godot Android Export
-        uses: dulvui/godot-android-export@v3.0.0
+        uses: dulvui/ godot-android-export@v3.0.0
         with:
           godot-version: '4.7.1'
           export-debug: true
+
 
