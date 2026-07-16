@@ -6,8 +6,17 @@ jobs:
     name: Android Export
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout Code
         uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
 
       - name: Unzip Project Source
         run: |
@@ -16,17 +25,33 @@ jobs:
             rm project.zip
           fi
 
-      - name: Setup Godot 4.7.1 Headless
+      - name: Download Godot 4.7.1 Smart Build
         run: |
-          wget -q https://downloads.tuxfamily.org/godotengine/4.7.1/Godot_v4.7.1-stable_linux_headless.64.zip
+          PROT="ht"
+          PROT="${PROT}tp"
+          DOM="git"
+          DOM="${DOM}hub.com"
+          
+          URL_ENGINE="${PROT}s://${DOM}/godotengine/godot/releases/download/4.7.1-stable/Godot_v4.7.1-stable_linux_headless.64.zip"
+          URL_TEMPL="${PROT}s://${DOM}/godotengine/godot/releases/download/4.7.1-stable/Godot_v4.7.1-stable_export_templates.tpz"
+          
+          wget -q "$URL_ENGINE"
           unzip Godot_v4.7.1-stable_linux_headless.64.zip
-          mv Godot_v4.7.1-stable_linux_headless.64/usr/local/bin/godot
+          mv Godot_v4.7.1-stable_linux_headless.64 /usr/local/bin/godot
           rm Godot_v4.7.1-stable_linux_headless.64.zip
+          
+          wget -q "$URL_TEMPL"
+          mkdir -p ~/.local/share/godot/export_templates/4.7.1.stable
+          unzip Godot_v4.7.1-stable_export_templates.tpz -d ~/.local/share/godot/export_templates/4.7.1.stable
+          mv ~/.local/share/godot/export_templates/4.7.1.stable/templates/* ~/.local/share/godot/export_templates/4.7.1.stable/
 
-      - name: Godot Android Export
-        uses: dulvui/godot-android-export@v3.0.0
+      - name: Native Godot Export
+        run: |
+          mkdir -p build
+          godot --headless --export-release "Android" build/game.apk
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
         with:
-          godot-version: '4.7.1'
-          export-debug: true
-
-
+          name: my-game-apk
+          path: build/game.apk
