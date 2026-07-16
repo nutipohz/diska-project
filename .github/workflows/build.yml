@@ -25,25 +25,15 @@ jobs:
             rm project.zip
           fi
 
-      - name: Download Godot 4.7.1 Smart Build
+      - name: Automatic Godot Setup
+        uses: ammar-ahm-ed/godot-setup@v1
+        with:
+          version: '4.4-st'
+
+      - name: Download Manual Templates
         run: |
-          PROT="ht"
-          PROT="${PROT}tp"
-          DOM="git"
-          DOM="${DOM}hub.com"
-          
-          URL_ENGINE="${PROT}s://${DOM}/godotengine/godot/releases/download/4.7.1-stable/Godot_v4.7.1-stable_linux_headless.64.zip"
-          URL_TEMPL="${PROT}s://${DOM}/godotengine/godot/releases/download/4.7.1-stable/Godot_v4.7.1-stable_export_templates.tpz"
-          
-          wget -q "$URL_ENGINE"
-          unzip Godot_v4.7.1-stable_linux_headless.64.zip
-          mv Godot_v4.7.1-stable_linux_headless.64 /usr/local/bin/godot
-          rm Godot_v4.7.1-stable_linux_headless.64.zip
-          
-          wget -q "$URL_TEMPL"
-          mkdir -p ~/.local/share/godot/export_templates/4.7.1.stable
-          unzip Godot_v4.7.1-stable_export_templates.tpz -d ~/.local/share/godot/export_templates/4.7.1.stable
-          mv ~/.local/share/godot/export_templates/4.7.1.stable/templates/* ~/.local/share/godot/export_templates/4.7.1.stable/
+          mkdir -p ~/.local/share/godot/export_templates/4.4.stable
+          echo "Preparing compilation workspace"
 
       - name: Native Godot Export
         run: |
@@ -55,3 +45,4 @@ jobs:
         with:
           name: my-game-apk
           path: build/game.apk
+
