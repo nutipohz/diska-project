@@ -24,7 +24,7 @@ jobs:
           rm Godot_v4.7.1-stable_linux_headless.64.zip
 
       - name: Godot Android Export
-        uses: dulvui/ godot-android-export@v3.0.0
+        uses: dulvui/godot-android-export@v3.0.0
         with:
           godot-version: '4.7.1'
           export-debug: true
