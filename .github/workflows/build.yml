@@ -18,7 +18,7 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Unzip and Flatten Project Source
+      - name: Unzip and Downgrade Project
         run: |
           if [ -f project.zip ]; then
             unzip project.zip -d temp_unzip
@@ -29,7 +29,6 @@ jobs:
             fi
             rm -rf temp_unzip project.zip
           fi
-          # Делаем файл проекта чистым, чтобы Godot 4.3.0 импортировал его без ошибок
           if [ -f project.godot ]; then
             sed -i '/config_version=/d' project.godot
             sed -i '/config\/features=/d' project.godot
@@ -43,7 +42,14 @@ jobs:
           use-mono: false
           include-templates: true
 
-      - name: Force Android Architecture Config
+      - name: First Run - Import Assets
+        run: |
+          godot --headless --path . --editor &
+          PID=$!
+          sleep 20
+          kill $PID || true
+
+      - name: Force Overwrite Architecture Config
         run: |
           mkdir -p build
           cat << 'EOF' > export_presets.cfg
@@ -73,14 +79,6 @@ jobs:
           rendering/textures/vram_compression/import_etc2_astc=true
           EOF
 
-      - name: First Run - Import Assets
-        run: |
-          # Запускаем редактор в фоне на 20 секунд, чтобы он сгенерировал папки импорта для текстур
-          godot --headless --path . --editor &
-          PID=$!
-          sleep 20
-          kill $PID || true
-
       - name: Native Godot Export
         run: |
           godot --headless --path . --export-debug "Android" build/game.apk
@@ -90,10 +88,3 @@ jobs:
         with:
           name: my-game-apk
           path: build/game.apk
-
-
-
-
-
-
-
