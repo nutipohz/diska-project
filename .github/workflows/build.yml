@@ -1,0 +1,24 @@
+name: "Godot Android Build"
+on: [push, pull_request]
+
+jobs:
+  export-android:
+    name: Android Export
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Unzip Project Source
+        run: |
+          if [ -f project.zip ]; then
+            unzip project.zip -d .
+            rm project.zip
+          fi
+
+      - name: Godot Android Export
+        uses: dulvui/godot-android-export@v3.0.0
+        with:
+          godot-version: '4.7.1'
+          export-debug: true
+
